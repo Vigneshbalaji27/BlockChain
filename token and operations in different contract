@@ -1,13 +1,10 @@
 pragma solidity ^0.4.20;
 interface Token{
-    
     function balanceOf(address who)public constant returns(uint256);
     function transferFrom(address from, address to, uint256 value) public returns (bool);
-  
-}
+ }
 contract operations {
     Token obj;
-   
     mapping (address=>uint256) time;
     mapping(address=>bool) add;
     mapping (address=>uint256) values1;
@@ -42,11 +39,8 @@ contract operations {
        else{
            obj.transferFrom(from,to,value);
            values2[to]=value;
-          // valuescount[to]+=value;
            count[msg.sender]++;
        }
-       
-     
     }
     
     function PauseTransfer()onlyOwner public {
@@ -70,7 +64,6 @@ contract operations {
              else{
                  return false;
              }
-         
     }
     
     function claim(address beneficiary)public{
@@ -84,11 +77,7 @@ contract operations {
          
     }
     
-    /*function getTokenAge(address beneficiary)public constant returns(uint256){
-        if(timebased(beneficiary)==true ) {
-        return (values1[beneficiary]*10)/100;
-        }
-    }*/
+   
     function claimAfer5Transactions(address beneficiary) public{
         require(claimed1[beneficiary]==false);
         require(count[msg.sender]>=3);
@@ -97,7 +86,5 @@ contract operations {
         obj.transferFrom(owner,beneficiary,val);
         claimed1[beneficiary]=true;
     }
-    function burn()onlyOwner{
-        
-    }
+    
 }
