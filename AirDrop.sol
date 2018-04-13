@@ -59,12 +59,7 @@ contract AirDrop{
         transfered=true;
         claimtoken=true;
     }
-    
-    function allowed(address owner,address spender)public constant returns(uint256){
-        if(Pause==false){
-        return obj.allowance(owner,spender);
-        }
-    }
+   
     function AirdropStart(address Tokenaddress){
         obj=Token(Tokenaddress);
         uint256 val=obj.allowance(msg.sender,this);
