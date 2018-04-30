@@ -1,0 +1,110 @@
+pragma solidity ^0.4.20;
+
+interface Token{
+    
+    function balanceOf(address _add) external constant returns(uint256);
+    function transfer(address _to,uint256 _value) external;
+    function transferFrom(address _from,address _to,uint256 _value) external;
+    function allowance(address owner,address spender) external constant returns(uint256);
+    
+}
+
+contract AirDropToken{
+    
+    Token public t;
+    address owner;
+    bool pause;
+    bool reg;
+    bool alreadyTransferred;
+    bool claimToken;
+    bool getTokens;
+    uint256 allTokens;
+    mapping(address => uint256) userTokens;
+    address[] storeAdd;
+    mapping (address => bool) alreadyExists;
+    
+     function AirDropToken()public{
+        owner=msg.sender;
+     }
+    
+    modifier onlyOwner{
+        require(owner==msg.sender);
+        _;
+    }
+    
+    function userRegistration(address _add,uint256 _tokens){
+        require(alreadyExists[_add]==false);
+        require(pause==false);
+        storeAdd.push(_add);
+        require(getTokens==true);
+        uint256 allowTokens=t.balanceOf(this);
+        
+        allTokens+=_tokens;
+       if(allTokens<=allowTokens)
+       {
+        userTokens[_add]=_tokens;
+        alreadyExists[_add]=true;
+        reg=true;
+       }
+       else
+       {
+           allTokens-=_tokens;
+           throw;
+       }
+        
+    }
+    
+    function checkBalance(address _add) public constant returns(uint256)
+    {
+        return t.balanceOf(_add);
+    }
+    function tokenAllocated(address _add) public constant returns(uint256)
+    {
+         require(pause==false);
+         return userTokens[_add];
+    }
+    
+    function transferTokenToAllUsers() onlyOwner public{
+        
+        require(pause==false);
+        require(reg==true);
+        require(alreadyTransferred==false);
+        for(uint256 i=0;i<storeAdd.length;i++)
+        {
+            t.transfer(storeAdd[i],userTokens[storeAdd[i]]);
+        }
+        alreadyTransferred=true;
+        claimToken=true;
+    }
+    
+    function airDropStarts(address _tokenAddress){
+        require(getTokens==false);
+        t=Token(_tokenAddress);
+        uint256 val=t.allowance(msg.sender,this);
+        t.transferFrom(msg.sender,this,val);
+        getTokens=true;
+    }
+    
+    function listAll() public constant returns(address[])
+    {
+        if(pause == false){
+            return storeAdd;
+        }
+    }
+    
+    function pauseAll()onlyOwner public{
+        require(pause==false);
+        pause=true;
+    }
+    function resumeAll()onlyOwner public{
+        require(pause==true);
+        pause=false;
+    }
+    
+    function claimRemainingTokens() onlyOwner public{
+        require(claimToken==true);
+        uint256 bal=t.balanceOf(this);
+        t.transfer(msg.sender,bal);
+    }
+    
+}
